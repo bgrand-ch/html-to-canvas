@@ -28,6 +28,7 @@ import {DebuggerType, isDebugging} from '../core/debugger';
 export interface CloneOptions {
     ignoreElements?: (element: Element) => boolean;
     onclone?: (document: Document, element: HTMLElement) => void;
+    skipClone?: boolean;
     allowTaint?: boolean;
 }
 
@@ -66,7 +67,8 @@ export class DocumentCloner {
             throw new Error('Cloned element does not have an owner document');
         }
 
-        this.documentElement = this.cloneNode(element.ownerDocument.documentElement, false) as HTMLElement;
+        const docElement: HTMLElement = element.ownerDocument.documentElement;
+        this.documentElement = this.options.skipClone ? docElement : this.cloneNode(docElement, false) as HTMLElement;
     }
 
     toIFrame(ownerDocument: Document, windowSize: Bounds): Promise<HTMLIFrameElement> {
