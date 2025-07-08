@@ -1,27 +1,17 @@
-html2canvas
+html2canvas with "skipClone"
 ===========
 
-[Homepage](https://html2canvas.hertzen.com) | [Downloads](https://github.com/niklasvh/html2canvas/releases) | [Questions](https://github.com/niklasvh/html2canvas/discussions/categories/q-a)
+## JavaScript HTML renderer ##
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/niklasvh/html2canvas?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) 
-![CI](https://github.com/niklasvh/html2canvas/workflows/CI/badge.svg?branch=master)
-[![NPM Downloads](https://img.shields.io/npm/dm/html2canvas.svg)](https://www.npmjs.org/package/html2canvas)
-[![NPM Version](https://img.shields.io/npm/v/html2canvas.svg)](https://www.npmjs.org/package/html2canvas)
+The script allows you to take "screenshots" of webpages or parts of it, directly on the users browser. The screenshot is based on the DOM and as such may not be 100% accurate to the real representation as it does not make an actual screenshot, but builds the screenshot based on the information available on the page.
 
-#### JavaScript HTML renderer ####
+## How does it work? ##
 
- The script allows you to take "screenshots" of webpages or parts of it, directly on the users browser. The screenshot is based on the DOM and as such may not be 100% accurate to the real representation as it does not make an actual screenshot, but builds the screenshot based on the information available on the page.
-
-
-### How does it work? ###
 The script renders the current page as a canvas image, by reading the DOM and the different styles applied to the elements.
 
 It does **not require any rendering from the server**, as the whole image is created on the **client's browser**. However, as it is heavily dependent on the browser, this library is *not suitable* to be used in nodejs.
-It doesn't magically circumvent any browser content policy restrictions either, so rendering cross-origin content will require a [proxy](https://github.com/niklasvh/html2canvas/wiki/Proxies) to get the content to the [same origin](http://en.wikipedia.org/wiki/Same_origin_policy).
 
-The script is still in a **very experimental state**, so I don't recommend using it in a production environment nor start building applications with it yet, as there will be still major changes made.
-
-### Browser compatibility ###
+## Browser compatibility ##
 
 The library should work fine on the following browsers (with `Promise` polyfill):
 
@@ -31,43 +21,106 @@ The library should work fine on the following browsers (with `Promise` polyfill)
 * IE9+
 * Safari 6+
 
-As each CSS property needs to be manually built to be supported, there are a number of properties that are not yet supported.
+## Installation ##
 
-### Usage ###
+```shell
+npm install html2canvas-skipclone@1.0.0
+```
 
-The html2canvas library utilizes `Promise`s and expects them to be available in the global context. If you wish to
-support [older browsers](http://caniuse.com/#search=promise) that do not natively support `Promise`s, please include a polyfill such as
-[es6-promise](https://github.com/jakearchibald/es6-promise) before including `html2canvas`.
+### NPM package aliasing ###
+
+```json
+{
+    "dependencies": {
+        "html2canvas": "npm:html2canvas-skipclone@1.0.0"
+    }
+}
+```
+
+## Usage ##
 
 To render an `element` with html2canvas, simply call:
-` html2canvas(element[, options]);`
+
+```ts
+html2canvas(element[, options]);
+```
 
 The function returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) containing the `<canvas>` element. Simply add a promise fulfillment handler to the promise using `then`:
 
-    html2canvas(document.body).then(function(canvas) {
-        document.body.appendChild(canvas);
-    });
+```ts
+html2canvas(document.body).then((canvas: HTMLCanvasElement) => {
+    document.body.appendChild(canvas);
+});
+```
 
-### Building ###
+## CSS supported properties ##
 
-You can download ready builds [here](https://github.com/niklasvh/html2canvas/releases).
+As each CSS property needs to be manually built to be supported, there are a number of properties that are not yet supported.
 
-Clone git repository:
+Below is a list of all the supported CSS properties and values.
 
-    $ git clone git://github.com/niklasvh/html2canvas.git
-
-Install dependencies:
-
-    $ npm install
-
-Build browser bundle
-
-    $ npm run build
-
-### Examples ###
-
-For more information and examples, please visit the [homepage](https://html2canvas.hertzen.com) or try the [test console](https://html2canvas.hertzen.com/tests/).
-
-### Contributing ###
-
-If you wish to contribute to the project, please send the pull requests to the develop branch. Before submitting any changes, try and test that the changes work with all the support browsers. If some CSS property isn't supported or is incomplete, please create appropriate tests for it as well before submitting any code changes.
+ - background
+   - background-clip (**Does not support `text`**)
+   - background-color
+   - background-image
+       - url()
+       - linear-gradient()
+       - radial-gradient()
+   - background-origin
+   - background-position
+   - background-size
+ - border
+   - border-color
+   - border-radius
+   - border-style
+   - border-width
+ - bottom
+ - box-sizing
+ - content
+ - color
+ - display
+ - flex
+ - float
+ - font
+   - font-family
+   - font-size
+   - font-style
+   - font-variant
+   - font-weight
+ - height
+ - left
+ - letter-spacing
+ - line-break
+ - list-style
+    - list-style-image
+    - list-style-position
+    - list-style-type
+ - margin
+ - max-height
+ - max-width
+ - min-height
+ - min-width
+ - opacity
+ - overflow
+ - overflow-wrap
+ - padding
+ - paint-order
+ - position
+ - right
+ - text-align
+ - text-decoration
+   - text-decoration-color
+   - text-decoration-line
+   - text-decoration-style (**Only supports `solid`**)
+ - text-shadow
+ - text-transform
+ - top
+ - transform (**Limited support**)
+ - visibility
+ - white-space
+ - width
+ - webkit-text-stroke
+ - word-break
+ - word-spacing
+ - word-wrap
+ - z-index
