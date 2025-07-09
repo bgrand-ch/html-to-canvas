@@ -27,34 +27,37 @@ export class ForeignObjectRenderer extends Renderer {
     }
 
     async render(element: HTMLElement): Promise<HTMLCanvasElement> {
-        const svg = createForeignObjectSVG(
-            this.options.width * this.options.scale,
-            this.options.height * this.options.scale,
-            this.options.scale,
-            this.options.scale,
-            element
-        );
+        try {
+            const svg = createForeignObjectSVG(
+                this.options.width * this.options.scale,
+                this.options.height * this.options.scale,
+                0,
+                0,
+                element
+            );
 
-        const img = await loadSerializedSVG(svg);
+            const img = await loadSerializedSVG(svg);
 
-        if (this.options.backgroundColor) {
-            this.ctx.fillStyle = asString(this.options.backgroundColor);
-            this.ctx.fillRect(0, 0, this.options.width * this.options.scale, this.options.height * this.options.scale);
+            if (this.options.backgroundColor) {
+                this.ctx.fillStyle = asString(this.options.backgroundColor);
+                this.ctx.fillRect(0, 0, this.options.width * this.options.scale, this.options.height * this.options.scale);
+            }
+
+            this.ctx.drawImage(img, -this.options.x * this.options.scale, -this.options.y * this.options.scale);
+
+            return this.canvas;
+        } catch (e) {
+            this.context.logger.error("Error rendering foreign object:", e);
+            return this.canvas;
         }
-
-        this.ctx.drawImage(img, -this.options.x * this.options.scale, -this.options.y * this.options.scale);
-
-        return this.canvas;
     }
 }
 
 export const loadSerializedSVG = (svg: Node): Promise<HTMLImageElement> =>
     new Promise((resolve, reject) => {
         const img = new Image();
-        img.onload = () => {
-            resolve(img);
-        };
-        img.onerror = reject;
 
+        img.onload = () => resolve(img);
+        img.onerror = reject;
         img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(svg))}`;
     });
