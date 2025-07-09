@@ -24,7 +24,7 @@ The library should work fine on the following browsers (with `Promise` polyfill)
 ## Installation ##
 
 ```shell
-npm install html2canvas-enhanced
+npm install html2canvas-enhanced@1.0.1
 ```
 
 ### NPM package aliasing ###
@@ -32,7 +32,7 @@ npm install html2canvas-enhanced
 ```json
 {
     "dependencies": {
-        "html2canvas": "npm:html2canvas-enhanced"
+        "html2canvas": "npm:html2canvas-enhanced@1.0.1"
     }
 }
 ```

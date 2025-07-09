@@ -17,6 +17,7 @@ export type Options = CloneOptions &
     };
 
 const html2canvas = (element: HTMLElement, options: Partial<Options> = {}): Promise<HTMLCanvasElement> => {
+    console.log('Hello html2canvas')
     return renderElement(element, options);
 };
 
@@ -30,6 +31,7 @@ const renderElement = async (element: HTMLElement, opts: Partial<Options>): Prom
     if (!element || typeof element !== 'object') {
         return Promise.reject('Invalid element provided as first argument');
     }
+
     const ownerDocument = element.ownerDocument;
 
     if (!ownerDocument) {

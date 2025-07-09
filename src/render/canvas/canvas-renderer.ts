@@ -146,7 +146,8 @@ export class CanvasRenderer extends Renderer {
 
     renderTextWithLetterSpacing(text: TextBounds, letterSpacing: number, baseline: number): void {
         if (letterSpacing === 0) {
-            this.ctx.fillText(text.text, text.bounds.left, text.bounds.top + baseline);
+            this.ctx.textBaseline = 'ideographic'
+            this.ctx.fillText(text.text, text.bounds.left, text.bounds.top + text.bounds.height);
         } else {
             const letters = segmentGraphemes(text.text);
             letters.reduce((left, letter) => {
@@ -181,7 +182,7 @@ export class CanvasRenderer extends Renderer {
         this.ctx.direction = styles.direction === DIRECTION.RTL ? 'rtl' : 'ltr';
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'alphabetic';
-        const {baseline, middle} = this.fontMetrics.getMetrics(fontFamily, fontSize);
+        const {baseline} = this.fontMetrics.getMetrics(fontFamily, fontSize);
         const paintOrder = styles.paintOrder;
 
         text.textBounds.forEach((text) => {
@@ -189,7 +190,7 @@ export class CanvasRenderer extends Renderer {
                 switch (paintOrderLayer) {
                     case PAINT_ORDER_LAYER.FILL:
                         this.ctx.fillStyle = asString(styles.color);
-                        this.renderTextWithLetterSpacing(text, styles.letterSpacing, baseline);
+                        this.renderTextWithLetterSpacing(text, styles.letterSpacing, styles.fontSize.number);
                         const textShadows: TextShadow = styles.textShadow;
 
                         if (textShadows.length && text.text.trim().length) {
@@ -202,7 +203,7 @@ export class CanvasRenderer extends Renderer {
                                     this.ctx.shadowOffsetY = textShadow.offsetY.number * this.options.scale;
                                     this.ctx.shadowBlur = textShadow.blur.number;
 
-                                    this.renderTextWithLetterSpacing(text, styles.letterSpacing, baseline);
+                                    this.renderTextWithLetterSpacing(text, styles.letterSpacing, styles.fontSize.number);
                                 });
 
                             this.ctx.shadowColor = '';
@@ -214,35 +215,16 @@ export class CanvasRenderer extends Renderer {
                         if (styles.textDecorationLine.length) {
                             this.ctx.fillStyle = asString(styles.textDecorationColor || styles.color);
                             styles.textDecorationLine.forEach((textDecorationLine) => {
+                                var decorationLineHeight = 1;
                                 switch (textDecorationLine) {
                                     case TEXT_DECORATION_LINE.UNDERLINE:
-                                        // Draws a line at the baseline of the font
-                                        // TODO As some browsers display the line as more than 1px if the font-size is big,
-                                        // need to take that into account both in position and size
-                                        this.ctx.fillRect(
-                                            text.bounds.left,
-                                            Math.round(text.bounds.top + baseline),
-                                            text.bounds.width,
-                                            1
-                                        );
-
+                                        this.ctx.fillRect(text.bounds.left, text.bounds.top + text.bounds.height - decorationLineHeight, text.bounds.width, decorationLineHeight);
                                         break;
                                     case TEXT_DECORATION_LINE.OVERLINE:
-                                        this.ctx.fillRect(
-                                            text.bounds.left,
-                                            Math.round(text.bounds.top),
-                                            text.bounds.width,
-                                            1
-                                        );
+                                        this.ctx.fillRect(text.bounds.left, text.bounds.top , text.bounds.width, decorationLineHeight);
                                         break;
                                     case TEXT_DECORATION_LINE.LINE_THROUGH:
-                                        // TODO try and find exact position for line-through
-                                        this.ctx.fillRect(
-                                            text.bounds.left,
-                                            Math.ceil(text.bounds.top + middle),
-                                            text.bounds.width,
-                                            1
-                                        );
+                                        this.ctx.fillRect(text.bounds.left, text.bounds.top + (text.bounds.height / 2 - decorationLineHeight / 2), text.bounds.width, decorationLineHeight);
                                         break;
                                 }
                             });
@@ -388,10 +370,10 @@ export class CanvasRenderer extends Renderer {
         }
 
         if (isTextInputElement(container) && container.value.length) {
-            const [fontFamily, fontSize] = this.createFontStyle(styles);
+            const [font, fontFamily, fontSize] = this.createFontStyle(styles);
             const {baseline} = this.fontMetrics.getMetrics(fontFamily, fontSize);
 
-            this.ctx.font = fontFamily;
+            this.ctx.font = font;
             this.ctx.fillStyle = asString(styles.color);
 
             this.ctx.textBaseline = 'alphabetic';
@@ -445,9 +427,9 @@ export class CanvasRenderer extends Renderer {
                     }
                 }
             } else if (paint.listValue && container.styles.listStyleType !== LIST_STYLE_TYPE.NONE) {
-                const [fontFamily] = this.createFontStyle(styles);
+                const [font] = this.createFontStyle(styles);
 
-                this.ctx.font = fontFamily;
+                this.ctx.font = font;
                 this.ctx.fillStyle = asString(styles.color);
 
                 this.ctx.textBaseline = 'middle';
@@ -709,24 +691,27 @@ export class CanvasRenderer extends Renderer {
 
         if (hasBackground || styles.boxShadow.length) {
             this.ctx.save();
-            this.path(backgroundPaintingArea);
-            this.ctx.clip();
 
-            if (!isTransparent(styles.backgroundColor)) {
+            if (styles.display === DISPLAY.INLINE && !isTransparent(styles.backgroundColor) && paint.container.textNodes.length > 0) {
                 this.ctx.fillStyle = asString(styles.backgroundColor);
 
-                if (styles.display === DISPLAY.INLINE) {
-                    for (const textNode of paint.container.textNodes) {
-                        for (const textBound of textNode.textBounds) {
-                            this.ctx.fillRect(
-                                textBound.bounds.left,
-                                textBound.bounds.top,
-                                textBound.bounds.width,
-                                textBound.bounds.height
-                            );
-                        }
+                // Use text bounds instead of element bounds for inline elements
+                for (const textNode of paint.container.textNodes) {
+                    for (const textBounds of textNode.textBounds) {
+                        this.ctx.fillRect(
+                            textBounds.bounds.left,
+                            textBounds.bounds.top,
+                            textBounds.bounds.width,
+                            textBounds.bounds.height
+                        );
                     }
-                } else {
+                }
+            } else {
+                this.path(backgroundPaintingArea);
+                this.ctx.clip();
+
+                if (!isTransparent(styles.backgroundColor)) {
+                    this.ctx.fillStyle = asString(styles.backgroundColor);
                     this.ctx.fill();
                 }
             }

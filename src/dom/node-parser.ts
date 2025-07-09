@@ -18,7 +18,7 @@ const parseNodeTree = (context: Context, node: Node, parent: ElementContainer, r
     for (let childNode = node.firstChild, nextNode; childNode; childNode = nextNode) {
         nextNode = childNode.nextSibling;
 
-        if (isTextNode(childNode) && childNode.data.trim().length > 0) {
+        if (isTextNode(childNode) && childNode.data.length > 0) {
             parent.textNodes.push(new TextContainer(context, childNode, parent.styles));
         } else if (isElementNode(childNode)) {
             if (isSlotElement(childNode) && childNode.assignedNodes) {
