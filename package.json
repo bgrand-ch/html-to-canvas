@@ -1,13 +1,13 @@
 {
-  "title": "html2canvas-skipclone",
-  "name": "html2canvas-skipclone",
+  "title": "html2canvas-enhanced",
+  "name": "html2canvas-enhanced",
   "description": "Screenshots with JavaScript",
+  "version": "1.0.0",
+  "license": "MIT",
   "main": "dist/html2canvas.js",
   "module": "dist/html2canvas.esm.js",
   "typings": "dist/types/index.d.ts",
   "browser": "dist/html2canvas.js",
-  "version": "1.0.0",
-  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist/ && rimraf build/ && mkdirp dist && mkdirp build",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts && npm run build:create-reftest-list && npm run build:testrunner && npm run build:minify",

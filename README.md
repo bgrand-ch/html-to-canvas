@@ -1,4 +1,4 @@
-html2canvas with "skipClone"
+html2canvas enhanced
 ===========
 
 ## JavaScript HTML renderer ##
@@ -24,7 +24,7 @@ The library should work fine on the following browsers (with `Promise` polyfill)
 ## Installation ##
 
 ```shell
-npm install html2canvas-skipclone@1.0.0
+npm install html2canvas-enhanced
 ```
 
 ### NPM package aliasing ###
@@ -32,7 +32,7 @@ npm install html2canvas-skipclone@1.0.0
 ```json
 {
     "dependencies": {
-        "html2canvas": "npm:html2canvas-skipclone@1.0.0"
+        "html2canvas": "npm:html2canvas-enhanced"
     }
 }
 ```
